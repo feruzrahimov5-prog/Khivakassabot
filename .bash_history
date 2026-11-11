@@ -141,3 +141,44 @@ nano bot.py
 git add bot.py && git commit -m "Final version with all fixes" && git push origin main
 rm pending.db
 git add bot.py && git commit -m "Final version with all fixes" && git push origin main
+rm bot.py
+nano bot.py
+git add bot.py
+git commit -m "final: full code with plus handler"
+git push origin main --force
+rm bot.py
+nano bot.py
+git add bot.py
+git commit -m "final: random summa butun son, humo avtomatik"
+git push origin main --force
+git add bot.py
+git commit -m "final: random summa butun son, humo avtomatik"
+git push origin main --force
+nano bot.py
+rm bot.py
+nano bot.py
+git add bot.py
+git commit -m "final: random butun son + humo har qanday format"
+git push origin main --force
+git add bot.p
+git commit -m "final: random butun son"
+git push origin main --force
+git add bot.p
+git commit -m "final: random butun son"
+git push origin main --force
+git add bot.py && git commit -m "final: random butun son" && git push origin main --force
+rm bot.py
+nano bot.py
+git add bot.py && git commit -m "final: random butun son + humo har qanday format" && git push origin main --force
+git push origin main --force
+rm bot.py
+nano bot.py
+git add bot.py && git commit -m "fix: random butun son + pul yechish admin xabar" && git push origin main --force
+git add bot.py && git commit -m "fix: random butun son + pul yechish admin xabar" && git push origin main --forc
+rm bot.py
+nano bot.py
+git add bot.py && git commit -m "fix: random butun son + pul yechish admin xabar" && git push origin main --force
+git push origin main --force
+grep -n "generate_random_amount" bot.py
+sed -n '49,55p' bot.p
+python bot.py

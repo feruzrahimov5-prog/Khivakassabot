@@ -21,7 +21,8 @@ from telethon.sessions import StringSession
 # ==================== SOZLAMALAR ====================
 logging.basicConfig(level=logging.INFO)
 
-TOKEN = "8838328983:AAEPRK77sfsjAah0REz3LJKbo1hCUknWp9Q"
+# 🔴 TOKENNI SHU YERGA YOZING (Siz yuborgan token):
+TOKEN = "8838328983:AAEPRK77sfsjAahOREz3LJKbo1hCUknWp9Q"
 ADMIN_ID = 8620161861
 API_KEY = "51c9fcdaecf3a239cdf85aaeddd098e273b208e505edf2f66d94d3efee562751"
 
@@ -38,6 +39,9 @@ dp = Dispatcher(storage=storage)
 
 CARDS = ["9860 3501 4449 2351", "9860 2466 0248 6556"]
 card_index = 0
+
+# Menyu tugmalari ro'yxati (holatni tozalash uchun)
+MENU_TEXTS = ["💎 HISOB TO'LDIRISH", "💸 PUL YECHISH", "🌐 1WIN SAYTI", "📞 ADMIN BILAN BOG'LANISH"]
 
 def get_next_card():
     global card_index
@@ -157,7 +161,8 @@ async def send_deposit_to_1win(user_id: str, amount: int):
 
 # ==================== HANDLERLAR ====================
 @dp.message(CommandStart())
-async def start_cmd(message: types.Message):
+async def start_cmd(message: types.Message, state: FSMContext):
+    await state.clear()
     add_user(message.from_user.id, message.from_user.username or "", message.from_user.first_name or "", message.from_user.last_name or "")
     await message.answer("🏦 **1WIN CASH**\n━━━━━━━━━━━━━━━━━━━━━\n👋 Xush kelibsiz!\n👇 Tanlang:", reply_markup=main_menu)
 
@@ -183,25 +188,25 @@ async def users_list(message: types.Message):
     cursor.execute('SELECT user_id, username, first_name, last_name, joined_date FROM users ORDER BY joined_date DESC')
     users = cursor.fetchall()
     conn.close()
-    
+
     if not users:
         await message.answer("📭 Foydalanuvchilar ro'yxati bo'sh.")
         return
-    
+
     text = "📋 **FOYDALANUVCHILAR RO'YXATI**\n"
     text += "━━━━━━━━━━━━━━━━━━━━━\n\n"
-    
+
     for i, (user_id, username, first_name, last_name, joined_date) in enumerate(users, 1):
         full_name = f"{first_name or ''} {last_name or ''}".strip() or "Noma'lum"
         text += f"{i}. @{username or 'NoUsername'} | {full_name}\n"
         text += f"   🆔 `{user_id}` | 📅 {joined_date[:10]}\n\n"
-        
+
         if i % 20 == 0 and i < len(users):
             text += f"━━━━━━━━━━━━━━━━━━━━━\n"
             text += f"📌 Yana {len(users) - i} ta foydalanuvchi bor.\n"
             text += f"To'liq ro'yxat uchun /users_all deb yozing."
             break
-    
+
     await message.answer(text, parse_mode="Markdown")
 
 # ==================== BROADCAST ====================
@@ -237,6 +242,9 @@ async def deposit_start(message: types.Message, state: FSMContext):
 
 @dp.message(DepositState.waiting_id)
 async def deposit_id(message: types.Message, state: FSMContext):
+    if message.text in MENU_TEXTS:
+        return
+
     user_id = message.text.strip()
     if not user_id.isdigit():
         await message.answer("❌ ID faqat raqamlardan iborat!\n📝 Qayta kiriting:")
@@ -283,9 +291,9 @@ async def deposit_amount(message: types.Message, state: FSMContext):
             f"⚠️ Aynan shu summani o'tkazing!",
             parse_mode="Markdown",
             reply_markup=InlineKeyboardMarkup(inline_keyboard=[
-                [InlineKeyboardButton(text="📋 NUSXA OLISH", callback_data=f"copy_{card_number}")],
-                [InlineKeyboardButton(text="✅ TO'LOV QILDIM", callback_data="deposit_done")],
-                [InlineKeyboardButton(text="❌ BEKOR QILISH", callback_data="deposit_cancel")]
+                [InlineKeyboardButton(text=" 📋 NUSXA OLISH", callback_data=f"copy_{card_number}")],
+                [InlineKeyboardButton(text=" ✅ TO'LOV QILDIM", callback_data="deposit_done")],
+                [InlineKeyboardButton(text=" ❌ BEKOR QILISH", callback_data="deposit_cancel")]
             ])
         )
     except ValueError:
@@ -334,6 +342,9 @@ async def withdraw_start(message: types.Message, state: FSMContext):
 
 @dp.message(WithdrawState.waiting_id)
 async def withdraw_id(message: types.Message, state: FSMContext):
+    if message.text in MENU_TEXTS:
+        return
+
     if not message.text.isdigit():
         await message.answer("❌ ID faqat raqamlardan iborat!\n📝 Qayta kiriting:")
         return
@@ -377,7 +388,7 @@ async def withdraw_code(message: types.Message, state: FSMContext):
     user_id = data.get('user_id')
     amount = data.get('amount')
     card = data.get('card')
-    
+
     await message.answer(
         f"✅ **So'rovingiz qabul qilindi!**\n\n"
         f"📝 1Win ID: {user_id}\n"
@@ -389,7 +400,7 @@ async def withdraw_code(message: types.Message, state: FSMContext):
             [InlineKeyboardButton(text="🏠 BOSH SAHIFA", callback_data="back_main")]
         ])
     )
-    
+
     await bot.send_message(
         ADMIN_ID,
         f"📤 **YANGI YECHIB OLISH SO'ROVI!**\n\n"
@@ -470,12 +481,17 @@ async def humo_handler(event):
 # ==================== MAIN ====================
 async def main():
     print("🚀 Bot ishga tushmoqda...")
+    
+    # 🔥 WEBHOOKNI O'CHIRISH (Xatolikni tuzatuvchi qator):
+    await bot.delete_webhook(drop_pending_updates=True)
+    
     if SESSION_STRING:
         await userbot_client.start()
     else:
         await userbot_client.start(phone=phone)
         session_str = userbot_client.session.save()
         print(f"\n📝 USERBOT_SESSION:\n{session_str}\n")
+        
     print("✅ Userbot OK")
     await dp.start_polling(bot)
 
